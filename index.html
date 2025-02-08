@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🌹 Collect the Roses! 🌹</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ff8fab, #ff5d8f);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 70vh;
+            background: rgba(255, 255, 255, 0.9);
+            border: 4px solid #ff477e;
+            border-radius: 20px;
+            overflow: hidden;
+            touch-action: none;
+        }
+        
+        #progress-container {
+            width: 100%;
+            max-width: 400px;
+            height: 20px;
+            background: #fff;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff477e, #ff8fab);
+            transition: width 0.3s;
+        }
+        
+        #player {
+            position: absolute;
+            bottom: 20px;
+            width: 60px;
+            height: 45px;
+            background: #ff477e;
+            border-radius: 50%;
+            transition: left 0.1s;
+            transform: translateX(-50%);
+        }
+        
+        #player::before {
+            content: '💝';
+            position: absolute;
+            font-size: 30px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .item {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+        
+        #score-container {
+            color: white;
+            font-size: 20px;
+            margin: 10px 0;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        #instruction {
+            color: white;
+            font-size: 16px;
+            margin: 5px 0;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .victory-screen, .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff477e;
+            font-size: 18px;
+            text-align: center;
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 300px;
+        }
+
+        .message {
+            white-space: pre-line;
+            line-height: 1.5;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            background: #ff477e;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            margin: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+            background: #ff3474;
+        }
+
+        #hearts-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #ff477e;
+            font-size: 20px;
+        }
+
+        @media (max-height: 600px) {
+            #game-container {
+                height: 60vh;
+            }
+            
+            #instruction {
+                font-size: 14px;
+                margin: 3px 0;
+            }
+            
+            #score-container {
+                font-size: 16px;
+                margin: 5px 0;
+            }
+            
+            button {
+                padding: 8px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="score-container">
+        Love Points: <span id="score">0</span> / 100
+    </div>
+    <div id="instruction">
+        💫 Collect the roses (🌹) to gain love points! 💫
+    </div>
+    <div id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+    <div id="game-container">
+        <div id="player"></div>
+        <div id="hearts-container">❤️❤️❤️</div>
+        <div class="game-over">
+            Try again! 💝<br>
+            <button id="restart-button">Play Again</button>
+        </div>
+        <div class="victory-screen">
+            <div class="message">Happy Chocolate day cookie. 
+Ik your in pain but hold on ra. 
+dw about your brother too ik he gud. 
+Love you ra enjoy! 💝</div>
+            <button id="victory-restart">Play Again</button>
+        </div>
+    </div>
+    <button id="start-button">Start Collecting!</button>
+
+    <script>
+        const player = document.getElementById('player');
+        const gameContainer = document.getElementById('game-container');
+        const scoreElement = document.getElementById('score');
+        const startButton = document.getElementById('start-button');
+        const gameOver = document.querySelector('.game-over');
+        const victoryScreen = document.querySelector('.victory-screen');
+        const restartButton = document.getElementById('restart-button');
+        const victoryRestartButton = document.getElementById('victory-restart');
+        const heartsContainer = document.getElementById('hearts-container');
+        const progressBar = document.getElementById('progress-bar');
+        
+        const GOAL_SCORE = 100;
+        let score = 0;
+        let gameRunning = false;
+        let items = [];
+        let gameLoop;
+        let lives = 3;
+        
+        const itemTypes = ['🌹', '🍫', '💝', '💖'];
+
+        // Touch and mouse handling
+        function handleMove(x) {
+            if (!gameRunning) return;
+            
+            const containerRect = gameContainer.getBoundingClientRect();
+            const playerWidth = player.offsetWidth;
+            let newX = x - containerRect.left;
+            
+            // Keep player within bounds
+            newX = Math.max(playerWidth/2, Math.min(newX, containerRect.width - playerWidth/2));
+            player.style.left = newX + 'px';
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            if (e.touches.length > 0) {
+                handleMove(e.touches[0].clientX);
+            }
+        }
+
+        function handleMouse(e) {
+            handleMove(e.clientX);
+        }
+        
+        function createItem() {
+            if (!gameRunning) return;
+            
+            const item = document.createElement('div');
+            item.className = 'item';
+            item.textContent = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+            item.style.left = Math.random() * (gameContainer.offsetWidth - 30) + 'px';
+            item.style.top = '-30px';
+            gameContainer.appendChild(item);
+            items.push({
+                element: item,
+                speed: 2 + Math.random() * 2,
+                type: item.textContent
+            });
+        }
+        
+        function updateGame() {
+            if (!gameRunning) return;
+            
+            const playerRect = player.getBoundingClientRect();
+            
+            items.forEach((item, index) => {
+                const top = parseFloat(item.element.style.top || '-30');
+                item.element.style.top = (top + item.speed) + 'px';
+                
+                const itemRect = item.element.getBoundingClientRect();
+                
+                if (
+                    itemRect.bottom >= playerRect.top &&
+                    itemRect.top <= playerRect.bottom &&
+                    itemRect.right >= playerRect.left &&
+                    itemRect.left <= playerRect.right
+                ) {
+                    item.element.remove();
+                    items.splice(index, 1);
+                    
+                    if (item.type === '🌹') {
+                        score = Math.min(score + 10, GOAL_SCORE);
+                        scoreElement.textContent = score;
+                        progressBar.style.width = `${(score/GOAL_SCORE) * 100}%`;
+                        
+                        if (score >= GOAL_SCORE) {
+                            victory();
+                        }
+                    }
+                }
+                
+                if (top > gameContainer.offsetHeight) {
+                    item.element.remove();
+                    items.splice(index, 1);
+                    if (item.type === '🌹') {
+                        lives--;
+                        heartsContainer.textContent = '❤️'.repeat(lives);
+                        
+                        if (lives <= 0) {
+                            endGame();
+                        }
+                    }
+                }
+            });
+        }
+        
+        function startGame() {
+            score = 0;
+            lives = 3;
+            scoreElement.textContent = score;
+            progressBar.style.width = '0%';
+            heartsContainer.textContent = '❤️❤️❤️';
+            gameRunning = true;
+            items.forEach(i => i.element.remove());
+            items = [];
+            gameOver.style.display = 'none';
+            victoryScreen.style.display = 'none';
+            startButton.style.display = 'none';
+            
+            gameLoop = setInterval(() => {
+                if (Math.random() < 0.03) createItem();
+                updateGame();
+            }, 16);
+        }
+        
+        function victory() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            victoryScreen.style.display = 'block';
+            startButton.style.display = 'block';
+        }
+        
+        function endGame() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            gameOver.style.display = 'block';
+            startButton.style.display = 'block';
+        }
+        
+        // Event listeners for both touch and mouse
+        gameContainer.addEventListener('touchmove', handleTouch, { passive: false });
+        gameContainer.addEventListener('mousemove', handleMouse);
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        victoryRestartButton.addEventListener('click', startGame);
+    </script>
+</body>
+</html>
