@@ -1,458 +1,317 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Valentine's Day Teddy Bear Maze</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #ffe6f0;
-            font-family: Arial, sans-serif;
-            color: #d4367a;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        #game-container {
-            margin: 20px;
-            position: relative;
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(255, 153, 204, 0.3);
-        }
-        
-        #maze {
-            border: 3px solid #ff99cc;
-            background: white;
-            display: block;
-        }
-        
-        #instructions {
-            margin: 20px;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(255, 153, 204, 0.3);
-            text-align: center;
-            width: 80%;
-            max-width: 600px;
-        }
-        
-        .game-status {
-            margin: 10px;
-            font-size: 1.2em;
-            color: #d4367a;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(255, 153, 204, 0.3);
-        }
-        
-        .win-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(212, 54, 122, 0.3);
-            display: none;
-            text-align: center;
-            z-index: 100;
-        }
-        
-        button {
-            padding: 12px 24px;
-            background: #ff66b2;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 10px;
-            transition: all 0.3s ease;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        
-        button:hover {
-            background: #ff3399;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(255, 102, 178, 0.3);
-        }
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ff8fb3 0%, #ff5c8a 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      position: relative;
+      padding: 20px;
+    }
 
-        .heart {
-            color: #ff3399;
-            font-size: 1.2em;
-        }
+    .slideshow {
+      position: relative;
+      width: 90vw;
+      height: 90vh;
+      overflow: hidden;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      border: 8px solid white;
+      max-width: 1800px;
+      max-height: 1000px;
+    }
 
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 90;
-        }
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: all 0.8s ease-in-out;
+      background: #ffebf0;
+    }
 
-        #mobile-controls {
-            display: none;
-            grid-template-areas:
-                ". up ."
-                "left . right"
-                ". down .";
-            gap: 10px;
-            margin: 20px;
-            touch-action: none;
-        }
+    .title-slide {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: #ff1f5a;
+      font-size: 48px;
+      padding: 20px;
+      background: #ffebf0;
+      height: 100%;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+    }
 
-        @media (max-width: 768px) {
-            #mobile-controls {
-                display: grid;
-            }
-        }
+    .heart-decoration {
+      position: absolute;
+      font-size: 24px;
+      animation: float 3s ease-in-out infinite;
+      opacity: 0.6;
+    }
 
-        .control-btn {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 102, 178, 0.8);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            touch-action: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+    .flying-heart {
+      position: fixed;
+      font-size: 60px;
+      pointer-events: none;
+      animation: fly 6s linear infinite;
+      opacity: 0;
+      z-index: 1000;
+    }
 
-        .control-btn:active {
-            background: rgba(255, 51, 153, 0.9);
-            transform: scale(0.95);
-        }
+    @keyframes fly {
+      0% {
+        transform: translate(0, 100vh) rotate(0deg);
+        opacity: 0;
+      }
+      5% {
+        opacity: 1;
+      }
+      95% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), -100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
 
-        #up-btn { grid-area: up; }
-        #down-btn { grid-area: down; }
-        #left-btn { grid-area: left; }
-        #right-btn { grid-area: right; }
-    </style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #ffebf0;
+    }
+
+    .message {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      background: rgba(255, 31, 90, 0.8);
+      color: white;
+      font-size: 30px;
+      transform: translateY(100%);
+      transition: transform 0.5s ease-in-out;
+      text-align: center;
+    }
+
+    .slide.active .message {
+      transform: translateY(0);
+    }
+
+    .controls {
+      position: absolute;
+      bottom: 100px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .controls.visible {
+      opacity: 1;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 31, 90, 0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background: #ff1f5a;
+      transform: scale(1.2);
+    }
+
+    .dot:hover {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 768px) {
+      .slideshow {
+        width: 95vw;
+        height: 80vh;
+      }
+      
+      .title-slide {
+        font-size: 32px;
+      }
+      
+      .message {
+        font-size: 24px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Valentine's Day Teddy Bear Maze <span class="heart">❤️</span></h1>
-    <div id="instructions">
-        <p>Find your way through the maze 3 times to reach the special Valentine's teddy bear! <span class="heart">🧸</span></p>
-        <p>Use arrow keys, WASD, or touch controls to move through the maze</p>
-        <p>Current Level: <span id="level">1</span>/3</p>
+  <div class="slideshow">
+    <!-- Title Slides -->
+    <div class="slide">
+      <div class="title-slide">
+        This isn't like the other Days ❤️
+        <span class="heart-decoration" style="top: 20%; left: 20%;">💝</span>
+        <span class="heart-decoration" style="top: 30%; right: 25%;">💖</span>
+        <span class="heart-decoration" style="bottom: 25%; left: 30%;">💕</span>
+      </div>
     </div>
-    <div class="game-status">
-        Hearts collected: <span id="hearts">0</span>
+    <div class="slide">
+      <div class="title-slide">
+        This is to reminisce Ra 💝
+        <span class="heart-decoration" style="top: 15%; right: 20%;">❤️</span>
+        <span class="heart-decoration" style="bottom: 20%; left: 25%;">💖</span>
+        <span class="heart-decoration" style="top: 40%; left: 15%;">💕</span>
+      </div>
     </div>
-    <div id="game-container">
-        <canvas id="maze"></canvas>
+    <div class="slide">
+      <div class="title-slide">
+        I love you, Enjoy 💖
+        <span class="heart-decoration" style="top: 25%; left: 25%;">💝</span>
+        <span class="heart-decoration" style="bottom: 30%; right: 20%;">❤️</span>
+        <span class="heart-decoration" style="top: 35%; right: 30%;">💕</span>
+      </div>
     </div>
-    <div id="mobile-controls">
-        <button class="control-btn" id="up-btn">↑</button>
-        <button class="control-btn" id="down-btn">↓</button>
-        <button class="control-btn" id="left-btn">←</button>
-        <button class="control-btn" id="right-btn">→</button>
+    <!-- Image Slides -->
+    <div class="slide">
+      <img src="5.jpg" alt="First slide">
+      <div class="message">Journey Begins(12th June 2024) ❤️</div>
     </div>
-    <button onclick="resetGame()">Reset Game</button>
-    <div class="overlay" id="overlay"></div>
-    <div class="win-message" id="winMessage">
-        <h2>Happy Teddy Day! 🧸❤️</h2>
-        <p>Cookie sry for causing</p>
-        <p> alot of trouble ra</p>
-        <p>Please dont be sad about anything ra.</p>
-        <p> Everything can be fixed.Love you ra.Ty</p>
-        <button onclick="resetGame()">Play Again</button>
+    <div class="slide">
+      <img src="4.jpg" alt="Second slide">
+      <div class="message">Ring day(4 seconds) 💝</div>
     </div>
+    <div class="slide">
+      <img src="1.png.jpg" alt="Third slide">
+      <div class="message">Your Birthday 💖</div>
+    </div>
+    <div class="slide">
+      <img src="3.jpg" alt="Fourth slide">
+      <div class="message">New Year Eve 💕</div>
+    </div>
+    <div class="slide">
+      <img src="2.png.jpg" alt="Fifth slide">
+      <div class="message">Badminton ❤️</div>
+    </div>
+    <!-- Final Valentine's Slide -->
+    <div class="slide">
+      <div class="title-slide" style="font-size: 56px; line-height: 1.4;">
+        Happy Valentine's Day<br>My Future Bed Warmer 💝
+      </div>
+    </div>
+    <div class="controls">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
 
-    <script>
-        const canvas = document.getElementById('maze');
-        const ctx = canvas.getContext('2d');
-        const overlay = document.getElementById('overlay');
-        
-        const CELL_SIZE = 30;
-        const ROWS = 15;
-        const COLS = 20;
-        
-        canvas.width = COLS * CELL_SIZE;
-        canvas.height = ROWS * CELL_SIZE;
-        
-        let playerX = 0;
-        let playerY = 0;
-        let currentLevel = 1;
-        let heartsCollected = 0;
-        
-        const mazeLayouts = [
-            // Level 1 - Easy spiral maze
-            [
-                [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0]
-            ],
-            // Level 2 - Zigzag maze
-            [
-                [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1],
-                [1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,0,1],
-                [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1],
-                [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
-                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1],
-                [1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1],
-                [1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1],
-                [1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1],
-                [1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,1],
-                [1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0]
-            ],
-            // Level 3 - Complex maze
-            [
-                [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                [0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1],
-                [1,1,0,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1],
-                [1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,1],
-                [1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1],
-                [1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
-                [1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1],
-                [1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,1],
-                [1,0,1,1,1,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],
-                [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,1],
-                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
-                [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0]
-            ]
-        ];
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+    const controls = document.querySelector('.controls');
+    let currentSlide = 0;
+    let isAnimating = false;
+    let heartInterval;
+    let slideInterval;
 
-        // Create and load teddy bear image
-        const teddyBear = new Image();
-        teddyBear.src = '/api/placeholder/30/30';
-        
-        function drawMaze() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    const currentMaze = mazeLayouts[currentLevel - 1];
-    
-    // Draw maze walls
-    for (let row = 0; row < ROWS; row++) {
-        for (let col = 0; col < COLS; col++) {
-            if (currentMaze[row][col] === 1) {
-                ctx.fillStyle = '#ff99cc';
-                ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                
-                ctx.fillStyle = '#ff80bf';
-                ctx.fillRect(
-                    col * CELL_SIZE + 2,
-                    row * CELL_SIZE + 2,
-                    CELL_SIZE - 4,
-                    CELL_SIZE - 4
-                );
-            }
-        }
+    function createFlyingHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'flying-heart';
+      const size = 40 + Math.random() * 40;
+      heart.style.fontSize = `${size}px`;
+      heart.textContent = ['❤️', '💖', '💝', '💕'][Math.floor(Math.random() * 4)];
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.setProperty('--tx', (Math.random() * 400 - 200) + 'px');
+      document.body.appendChild(heart);
+      
+      setTimeout(() => heart.remove(), 6000);
     }
-    
-    // Draw player
-    ctx.fillStyle = '#d4367a';
-    ctx.beginPath();
-    ctx.arc(
-        playerX * CELL_SIZE + CELL_SIZE/2,
-        playerY * CELL_SIZE + CELL_SIZE/2,
-        CELL_SIZE/3,
-        0,
-        Math.PI * 2
-    );
-    ctx.fill();
-    
-    // Draw goal (heart or teddy bear)
-    if (currentLevel === 3) {
-        ctx.drawImage(
-            teddyBear,
-            (COLS-1) * CELL_SIZE,
-            (ROWS-1) * CELL_SIZE,
-            CELL_SIZE,
-            CELL_SIZE
-        );
-    } else {
-        ctx.font = '20px Arial';
-        ctx.fillStyle = '#ff3399';
-        ctx.fillText('❤️', 
-            (COLS-1) * CELL_SIZE + CELL_SIZE/4, 
-            (ROWS-1) * CELL_SIZE + CELL_SIZE/1.2
-        );
-    }
-}
 
-function movePlayer(dx, dy) {
-    const newX = playerX + dx;
-    const newY = playerY + dy;
-    const currentMaze = mazeLayouts[currentLevel - 1];
-    
-    if (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && currentMaze[newY][newX] === 0) {
-        playerX = newX;
-        playerY = newY;
-        
-        if (newX === COLS - 1 && newY === ROWS - 1) {
-            if (currentLevel === 3) {
-                showWinMessage();
-            } else {
-                heartsCollected++;
-                document.getElementById('hearts').textContent = heartsCollected;
-                currentLevel++;
-                document.getElementById('level').textContent = currentLevel;
-                resetPlayerPosition();
-            }
-        }
-        
-        drawMaze();
-    }
-}
+    slides[0].classList.add('active');
 
-function showWinMessage() {
-    overlay.style.display = 'block';
-    document.getElementById('winMessage').style.display = 'block';
-}
+    function showSlide(index) {
+      if (isAnimating) return;
+      isAnimating = true;
 
-function resetPlayerPosition() {
-    playerX = 0;
-    playerY = 0;
-    drawMaze();
-}
+      slides[currentSlide].classList.remove('active');
+      
+      currentSlide = index;
 
-function resetGame() {
-    playerX = 0;
-    playerY = 0;
-    currentLevel = 1;
-    heartsCollected = 0;
-    document.getElementById('hearts').textContent = heartsCollected;
-    document.getElementById('level').textContent = currentLevel;
-    document.getElementById('winMessage').style.display = 'none';
-    document.getElementById('overlay').style.display = 'none';
-    drawMaze();
-}
+      slides[currentSlide].classList.add('active');
 
-// Keyboard controls
-document.addEventListener('keydown', (e) => {
-    switch(e.key) {
-        case 'ArrowUp':
-        case 'w':
-        case 'W':
-            movePlayer(0, -1);
-            break;
-        case 'ArrowDown':
-        case 's':
-        case 'S':
-            movePlayer(0, 1);
-            break;
-        case 'ArrowLeft':
-        case 'a':
-        case 'A':
-            movePlayer(-1, 0);
-            break;
-        case 'ArrowRight':
-        case 'd':
-        case 'D':
-            movePlayer(1, 0);
-            break;
-    }
-});
-
-// Mobile touch controls
-const upBtn = document.getElementById('up-btn');
-const downBtn = document.getElementById('down-btn');
-const leftBtn = document.getElementById('left-btn');
-const rightBtn = document.getElementById('right-btn');
-
-// Touch event handlers for mobile control buttons
-function addMobileControl(button, dx, dy) {
-    ['touchstart', 'mousedown'].forEach(eventType => {
-        button.addEventListener(eventType, (e) => {
-            e.preventDefault();
-            movePlayer(dx, dy);
+      if (currentSlide >= 3) {
+        controls.classList.add('visible');
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === currentSlide - 3);
         });
+      }
+
+      if (currentSlide === slides.length - 1) {
+        heartInterval = setInterval(createFlyingHeart, 100);
+      } else {
+        clearInterval(heartInterval);
+        document.querySelectorAll('.flying-heart').forEach(heart => heart.remove());
+      }
+
+      setTimeout(() => {
+        isAnimating = false;
+      }, 800);
+
+      clearInterval(slideInterval);
+      
+      if (currentSlide === slides.length - 1) {
+        slideInterval = setInterval(nextSlide, 15000);
+      } else if (currentSlide < 3) {
+        slideInterval = setInterval(nextSlide, 3000);
+      } else {
+        slideInterval = setInterval(nextSlide, 5000);
+      }
+    }
+
+    function nextSlide() {
+      const nextIndex = (currentSlide + 1) % slides.length;
+      showSlide(nextIndex);
+    }
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        const actualIndex = index + 3;
+        if (currentSlide !== actualIndex) {
+          showSlide(actualIndex);
+        }
+      });
     });
-}
 
-addMobileControl(upBtn, 0, -1);
-addMobileControl(downBtn, 0, 1);
-addMobileControl(leftBtn, -1, 0);
-addMobileControl(rightBtn, 1, 0);
-
-// Swipe controls
-let touchStartX = null;
-let touchStartY = null;
-
-canvas.addEventListener('touchstart', (e) => {
-    const touch = e.touches[0];
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
-    e.preventDefault();
-});
-
-canvas.addEventListener('touchmove', (e) => {
-    if (!touchStartX || !touchStartY) return;
-    
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - touchStartX;
-    const deltaY = touch.clientY - touchStartY;
-    
-    // Determine swipe direction based on larger delta
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        movePlayer(deltaX > 0 ? 1 : -1, 0);
-    } else {
-        movePlayer(0, deltaY > 0 ? 1 : -1);
-    }
-    
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
-    e.preventDefault();
-});
-
-canvas.addEventListener('touchend', () => {
-    touchStartX = null;
-    touchStartY = null;
-});
-
-// Prevent default touch behavior to avoid scrolling while playing
-document.addEventListener('touchmove', (e) => {
-    if (e.target.classList.contains('control-btn') || e.target === canvas) {
-        e.preventDefault();
-    }
-}, { passive: false });
-
-// Initialize game
-window.onload = () => {
-    resetGame();
-    teddyBear.onload = drawMaze;
-};
-// Initialize game
-window.onload = () => {
-            resetGame();
-            teddyBear.onload = drawMaze;
-        };
-    </script>
+    slideInterval = setInterval(nextSlide, 3000);
+  </script>
 </body>
 </html>
